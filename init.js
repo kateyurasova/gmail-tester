@@ -1,4 +1,4 @@
-const gmail = require("./gmail-tester");
+const gmail = require("./gmail-tester-extended");
 
 (async () => {
   await gmail.check_inbox(process.argv[2], process.argv[3], "", "", process.argv[4]);

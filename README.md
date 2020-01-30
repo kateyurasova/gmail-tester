@@ -1,6 +1,6 @@
-# gmail-tester
+# gmail-tester-extended
 
-[![npm version](https://badge.fury.io/js/gmail-tester.svg)](https://www.npmjs.com/package/gmail-tester)
+[![npm version](https://badge.fury.io/js/gmail-tester.svg)](https://www.npmjs.com/package/gmail-tester-extended)
 <span class="badge-npmdownloads"><a href="https://npmjs.org/package/badges" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/badges.svg" alt="NPM downloads" /></a></span>
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -8,7 +8,7 @@ A simple Node.js Gmail client which checks/returns email message(s) straight fro
 There are two main functionalities this library provides:<br>
 
 1.  `check_inbox()`: Polls a mailbox for a given amount of time. At the end of the operation, the desired message is returned (if found).
-2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example [below](https://github.com/levz0r/gmail-tester/blob/master/README.md#using-get_messages-to-assert-email-body-using-cypress)).
+2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example [below](https://github.com/levz0r/gmail-tester-extended/blob/master/README.md#using-get_messages-to-assert-email-body-using-cypress)).
 
 P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inbox-in-cypress-io-a4286cfdb888) on medium, how using [Cypress](https://cypress.io), we are testing our user registration process at Tastewise.
 
@@ -17,14 +17,14 @@ P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inb
 1.  Install using `npm`:
 
 ```
-npm install --save-dev gmail-tester
+npm install --save-dev gmail-tester-extended
 ```
 
-2.  Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions [below](https://github.com/levz0r/gmail-tester/blob/master/README.md#how-to-get-credentialsjson)).
+2.  Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions [below](https://github.com/levz0r/gmail-tester-extended/blob/master/README.md#how-to-get-credentialsjson)).
 3.  In terminal, run the following command:
 
 ```
-node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <path-to-token.json> <target-email>
+node <node_modules>/gmail-tester-extended/init.js <path-to-credentials.json> <path-to-token.json> <target-email>
 ```
 
 `<path-to-credentials.json>` Is the path to OAuth2 Authentication file.<br/>
@@ -61,7 +61,7 @@ If everything is done right, the last output from the script should be
 
 > [gmail] Found!
 
-3.  Congratulations! `gmail-tester` is ready to use.
+3.  Congratulations! `gmail-tester-extended` is ready to use.
 
 # API
 
@@ -139,7 +139,7 @@ In addition, verbose messages will be written to console.
 
 ```javascript
 const path = require("path");
-const gmail = require("gmail-tester");
+const gmail = require("gmail-tester-extended");
 const email = await gmail.check_inbox(
   path.resolve(__dirname, "credentials.json"), // Assuming credentials.json is in the current directory.
   path.resolve(__dirname, "gmail_token.json"), // Look for gmail_token.json in the current directory (if it doesn't exists, it will be created by the script).
@@ -159,13 +159,13 @@ if (email) {
 
 ## Using `get_messages()` to assert email body using Cypress
 
-_[examples\cypress\plugins\index.js](https://github.com/levz0r/gmail-tester/blob/master/examples/cypress/plugins/index.js):_
+_[examples\cypress\plugins\index.js](https://github.com/levz0r/gmail-tester-extended/blob/master/examples/cypress/plugins/index.js):_
 
 ```javascript
 /// <reference types="Cypress" />
 const debug = require("debug");
 const path = require("path");
-const gmail_tester = require("../../../../../gmail-tester");
+const gmail_tester = require("../../../../../gmail-tester-extended");
 
 module.exports = (on, config) => {
   on("before:browser:launch", (browser = {}, args) => {
@@ -187,7 +187,7 @@ module.exports = (on, config) => {
 };
 ```
 
-_[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-tester/blob/master/examples/cypress/integration/gmail.spec.js):_
+_[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-tester-extended/blob/master/examples/cypress/integration/gmail.spec.js):_
 
 ```javascript
 /// <reference types="Cypress" />

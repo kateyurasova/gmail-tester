@@ -1,8 +1,8 @@
 {
-    "name": "gmail-tester",
-    "version": "1.2.0",
+    "name": "gmail-tester-extended",
+    "version": "1.0.0",
     "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
-    "main": "gmail-tester.js",
+    "main": "gmail-tester-extended.js",
     "scripts": {},
     "keywords": [
         "gmail",
@@ -12,10 +12,10 @@
         "automation",
         "polling"
     ],
-    "author": "Lev Gelfenbuim",
+    "author": "Kate Yurasova (froked project by Lev Gelfenbuim)",
     "license": "MIT",
     "dependencies": {
         "googleapis": "^47.0.0"
     },
-    "homepage": "https://github.com/levz0r/gmail-tester"
+    "homepage": "https://github.com/kateyurasova/gmail-tester-extended"
 }
