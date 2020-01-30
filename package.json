@@ -1,6 +1,6 @@
 {
-    "_from": "gmail-tester-extended@^1.0.2",
-    "_id": "gmail-tester-extended@1.0.2",
+    "_from": "gmail-tester-extended@^1.0.3",
+    "_id": "gmail-tester-extended@1.0.3",
     "_inBundle": false,
     "_integrity": "sha512-4Bc9vs+nTCMvhusFcWgqxUlMYGslbBhG0O4IJFos/RGsNBvxWVjEZ52hliJWUysTQsMhsp3bveUOrzzA8LGK/w==",
     "_location": "/gmail-tester-extended",
@@ -8,20 +8,20 @@
     "_requested": {
         "type": "range",
         "registry": true,
-        "raw": "gmail-tester-extended@^1.0.2",
+        "raw": "gmail-tester-extended@^1.0.3",
         "name": "gmail-tester-extended",
         "escapedName": "gmail-tester-extended",
-        "rawSpec": "^1.0.2",
+        "rawSpec": "^1.0.3",
         "saveSpec": null,
-        "fetchSpec": "^1.0.2"
+        "fetchSpec": "^1.0.3"
     },
     "_requiredBy": [
         "#DEV:/",
         "#USER"
     ],
-    "_resolved": "https://registry.npmjs.org/gmail-tester-extended/-/gmail-tester-extended-1.0.2.tgz",
+    "_resolved": "https://registry.npmjs.org/gmail-tester-extended/-/gmail-tester-extended-1.0.3.tgz",
     "_shasum": "8e3de26f5c1a0baac558de3dc95eb52da4af338d",
-    "_spec": "gmail-tester-extended@^1.0.2",
+    "_spec": "gmail-tester-extended@^1.0.3",
     "_where": "D:\\DriveCentric\\AutomationProject\\TestingAutomation",
     "author": {
         "name": "Kate Yurasova",
@@ -29,13 +29,11 @@
     },
     "bundleDependencies": false,
     "dependencies": {
-        "googleapis": "^47.0.0"
+        "googleapis": "^47.0.0",
+        "js-base64": "^2.5.1"
     },
     "deprecated": false,
     "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
-    "devDependencies": {
-        "js-base64": "^2.5.1"
-    },
     "homepage": "https://github.com/kateyurasova/gmail-tester-extended",
     "keywords": [
         "gmail",
@@ -49,5 +47,5 @@
     "main": "gmail-tester-extended.js",
     "name": "gmail-tester-extended",
     "scripts": {},
-    "version": "1.0.2"
+    "version": "1.0.3"
 }
