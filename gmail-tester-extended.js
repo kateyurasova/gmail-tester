@@ -127,6 +127,29 @@ async function reply_email(credentials_json,
     return response;
 }
 
+async function send_email(credentials_json,
+                          token_path,
+                          subject,
+                          from,
+                          to,
+                          emailMessage,
+                          wait_time_sec = 30,
+                          max_wait_time_sec = 60,
+                          options = {}) {
+    const content = fs.readFileSync(credentials_json);
+    const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
+    const gmail_client = google.gmail({version: "v1", oAuth2Client});
+    const response = await gmail.send(
+        gmail_client,
+        oAuth2Client,
+        subject,
+        from,
+        to,
+        emailMessage
+    );
+    return response;
+}
+
 async function get_all_emails(credentials_json, token_path, options = {}) {
     const query = _init_query(options);
     const content = fs.readFileSync(credentials_json);
@@ -146,7 +169,7 @@ async function check_inbox(credentials_json,
                            from,
                            to,
                            wait_time_sec = 30,
-                           max_wait_time_sec = 60,
+                           max_wait_time_sec = 60 * 5,
                            options = {}) {
     try {
         console.log(
@@ -215,5 +238,6 @@ module.exports = {
     check_inbox,
     get_messages,
     get_all_emails,
-    reply_email
+    reply_email,
+    send_email
 };

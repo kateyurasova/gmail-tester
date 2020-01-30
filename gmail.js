@@ -214,11 +214,6 @@ async function createEmail(to, from, subject, message) {
 async function reply(gmail, oauth2Client, threadId, subject, from, to, message) {
     try {
         let promises = [];
-        // var to = 'enterprise@dcautotest.com';
-        // var from = 'drivecentricautomation@gmail.com';
-        // var subject = 'Enterprise User from DC Automated Testing 1';
-        //var message = 'Reply for Drive Centric';
-
         var email = ["Content-Type: text/plain; charset=\"UTF-8\"\n",
             "MIME-Version: 1.0\n",
             "Content-Transfer-Encoding: 7bit\n",
@@ -258,8 +253,50 @@ async function reply(gmail, oauth2Client, threadId, subject, from, to, message) 
     }
 }
 
+async function send(gmail, oauth2Client, subject, from, to, message) {
+    try {
+        let promises = [];
+        var email = ["Content-Type: text/plain; charset=\"UTF-8\"\n",
+            "MIME-Version: 1.0\n",
+            "Content-Transfer-Encoding: 7bit\n",
+            "to: ", to, "\n",
+            "from: ", from, "\n",
+            "subject: ", subject, "\n\n",
+            message
+        ].join('');
+
+        var base64EncodedEmail = Base64.encodeURI(email);
+
+        promises.push(
+            new Promise((resolve, reject) => {
+                gmail.users.messages.send(
+            {
+                auth: oauth2Client,
+                userId: "me",
+                resource: {
+                    raw: base64EncodedEmail,
+                }
+            },
+            function (err, res) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+            }
+            );
+    })
+    );
+        const result = await Promise.all(promises);
+        return result;
+    } catch (error) {
+        return 'Error ' + error
+    }
+}
+
 module.exports = {
     authorize,
     get_recent_email,
-    reply
+    reply,
+    send
 };
