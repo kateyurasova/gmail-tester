@@ -214,6 +214,61 @@ async function check_inbox(credentials_json,
     }
 }
 
+async function checkGoogleEmailWithMessage(credentials_json,
+                                           token_path,
+                                           subject,
+                                           message,
+                                           from,
+                                           to,
+                                           wait_time_sec = 30,
+                                           max_wait_time_sec = 60,
+                                           options = {}) {
+    try {
+        console.log(
+            `[gmail] Checking for message from '${from}', to: ${to}, contains '${subject}' in subject...`
+        );
+
+        let found_email = null;
+        let done_waiting_time = 0;
+        do {
+            const emails = await _get_recent_email(
+                credentials_json,
+                token_path,
+                options
+            );
+
+            for (let email of emails) {
+                if (
+                    email.receiver === to &&
+                    email.subject.indexOf(subject) >= 0 &&
+                    email.from.indexOf(from) >= 0 &&
+                    email.snippet.indexOf(message) >=0
+                ) {
+                    console.log(`[gmail] Found!`);
+                    found_email = email;
+                    break;
+                }
+            }
+
+            if (!found_email) {
+                console.log(
+                    `[gmail] Message not found. Waiting ${wait_time_sec} seconds...`
+                );
+                done_waiting_time += wait_time_sec;
+                if (done_waiting_time >= max_wait_time_sec) {
+                    console.log("[gmail] Maximum waiting time exceeded!");
+                    break;
+                }
+                await util.promisify(setTimeout)(wait_time_sec * 1000);
+            }
+
+        } while (!found_email);
+        return found_email;
+    } catch (err) {
+        console.log("[gmail] Error:", err);
+    }
+}
+
 /**
  * Get an array of messages
  *
@@ -240,5 +295,6 @@ module.exports = {
     get_messages,
     get_all_emails,
     reply_email,
-    send_email
+    send_email,
+    checkGoogleEmailWithMessage
 };
