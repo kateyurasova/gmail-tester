@@ -52,7 +52,8 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
             receiver: _get_header("Delivered-To", gmail_email.payload.headers),
             threadId: gmail_email.threadId,
             snippet: gmail_email.snippet,
-            date: new Date(+gmail_email["internalDate"])
+            date: new Date(+gmail_email["internalDate"]),
+            parts: gmail_email.payload.parts,
         };
         if (options.include_body) {
             let email_body = {
@@ -73,7 +74,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
             } else {
                 let body_part = gmail_email.payload.parts.find(
                     p => p.mimeType === "text/html"
-            );
+                );
                 if (body_part) {
                     email_body.html = Buffer.from(body_part.body.data, "base64").toString(
                         "utf8"
@@ -81,7 +82,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
                 }
                 body_part = gmail_email.payload.parts.find(
                     p => p.mimeType === "text/plain"
-            );
+                );
                 if (body_part) {
                     email_body.text = Buffer.from(body_part.body.data, "base64").toString(
                         "utf8"
@@ -164,6 +165,14 @@ async function get_all_emails(credentials_json, token_path, options = {}) {
     return gmail_emails;
 }
 
+async function login(credentials_json, token_path, options = {}) {
+    const query = _init_query(options);
+    const content = fs.readFileSync(credentials_json);
+    const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
+    const gmail_client = google.gmail({version: "v1", oAuth2Client});
+    return gmail_client;
+}
+
 async function check_inbox(credentials_json,
                            token_path,
                            subject,
@@ -190,6 +199,58 @@ async function check_inbox(credentials_json,
                     email.receiver === to &&
                     email.subject.indexOf(subject) >= 0 &&
                     email.from.indexOf(from) >= 0
+                ) {
+                    console.log(`[gmail] Found!`);
+                    found_email = email;
+                    break;
+                }
+            }
+            if (!found_email) {
+                console.log(
+                    `[gmail] Message not found. Waiting ${wait_time_sec} seconds...`
+                );
+                done_waiting_time += wait_time_sec;
+                if (done_waiting_time >= max_wait_time_sec) {
+                    console.log("[gmail] Maximum waiting time exceeded!");
+                    break;
+                }
+                await util.promisify(setTimeout)(wait_time_sec * 1000);
+            }
+        } while (!found_email);
+        return found_email;
+    } catch (err) {
+        console.log("[gmail] Error:", err);
+    }
+}
+
+async function getMessageWithTextInBody(credentials_json,
+                                        token_path,
+                                        subject,
+                                        from,
+                                        to,
+                                        bodyText,
+                                        wait_time_sec = 30,
+                                        max_wait_time_sec = 60 * 5,
+                                        options = {}) {
+    try {
+        console.log(
+            `[gmail] Checking for message from '${from}', to: ${to}, contains '${subject}' in subject...`
+        );
+        // Load client secrets from a local file.
+        let found_email = null;
+        let done_waiting_time = 0;
+        do {
+            const emails = await _get_recent_email(
+                credentials_json,
+                token_path,
+                options
+            );
+            for (let email of emails) {
+                if (
+                    email.receiver === to &&
+                    email.subject.indexOf(subject) >= 0 &&
+                    email.from.indexOf(from) >= 0 &&
+                    Buffer.from(email.parts[0].body.data, "base64").toString("utf8").indexOf(bodyText) >= 0
                 ) {
                     console.log(`[gmail] Found!`);
                     found_email = email;
@@ -296,5 +357,7 @@ module.exports = {
     get_all_emails,
     reply_email,
     send_email,
-    checkGoogleEmailWithMessage
+    getMessageWithTextInBody,
+    checkGoogleEmailWithMessage,
+    login
 };
