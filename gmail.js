@@ -301,8 +301,7 @@ async function sendEmailWithAttachments(gmail, oauth2Client, subject, from, to, 
         let mail = new MailComposer(
             {
                 to: to,
-                text: "I hope this works",
-                html: " <strong> " + message + " </strong>",
+                html: " <html> " + message + " </html>",
                 subject: subject,
                 textEncoding: "base64",
                 attachments: attachments
