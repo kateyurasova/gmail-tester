@@ -3,6 +3,7 @@ const path = require("path");
 const readline = require("readline");
 const {google} = require("googleapis");
 const Base64 = require('js-base64').Base64;
+const MailComposer = require('nodemailer/lib/mail-composer');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly",
@@ -54,21 +55,21 @@ async function get_new_token(oAuth2Client, token_path) {
     });
     return new Promise((resolve, reject) => {
         rl.question("Enter the code from that page here: ", async code => {
-        rl.close();
-        oAuth2Client.getToken(code, function (err, token) {
-            if (err) {
-                reject(err);
-            } else {
-                oAuth2Client.setCredentials(token);
-                fs.writeFileSync(
-                    token_path || path.resolve(__dirname, TOKEN_PATH),
-                    JSON.stringify(token)
-                );
-                resolve(oAuth2Client);
-            }
+            rl.close();
+            oAuth2Client.getToken(code, function (err, token) {
+                if (err) {
+                    reject(err);
+                } else {
+                    oAuth2Client.setCredentials(token);
+                    fs.writeFileSync(
+                        token_path || path.resolve(__dirname, TOKEN_PATH),
+                        JSON.stringify(token)
+                    );
+                    resolve(oAuth2Client);
+                }
+            });
         });
     });
-});
 }
 
 /**
@@ -80,20 +81,20 @@ async function list_labels(gmail, oauth2Client) {
     try {
         const labels = await new Promise((resolve, reject) => {
             gmail.users.labels.list(
-            {
-                userId: "me",
-                auth: oauth2Client
-            },
-            function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    const labels = res.data.labels;
-                    resolve(labels);
+                {
+                    userId: "me",
+                    auth: oauth2Client
+                },
+                function (err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        const labels = res.data.labels;
+                        resolve(labels);
+                    }
                 }
-            }
-        );
-    });
+            );
+        });
         return labels;
     } catch (err) {
         console.log("The API returned an error: " + err);
@@ -111,45 +112,45 @@ async function list_labels(gmail, oauth2Client) {
 async function list_messages(gmail, oauth2Client, query, labelIds) {
     const messages = await new Promise((resolve, reject) => {
         gmail.users.messages.list(
-        {
-            userId: "me",
-            q: query,
-            auth: oauth2Client,
-            labelIds: labelIds
-        },
-        async function (err, res) {
-        if (err) {
-            reject(err);
-        } else {
-            let result = res.data.messages || [];
-            let {nextPageToken} = res.data;
-            while (nextPageToken) {
-                const resp = await new Promise((resolve, reject) => {
-                    gmail.users.messages.list(
-                    {
-                        userId: "me",
-                        q: query,
-                        auth: oauth2Client,
-                        labelIds: labelIds,
-                        pageToken: nextPageToken
-                    },
-                    function (err, res) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(res);
-                        }
+            {
+                userId: "me",
+                q: query,
+                auth: oauth2Client,
+                labelIds: labelIds
+            },
+            async function (err, res) {
+                if (err) {
+                    reject(err);
+                } else {
+                    let result = res.data.messages || [];
+                    let {nextPageToken} = res.data;
+                    while (nextPageToken) {
+                        const resp = await new Promise((resolve, reject) => {
+                            gmail.users.messages.list(
+                                {
+                                    userId: "me",
+                                    q: query,
+                                    auth: oauth2Client,
+                                    labelIds: labelIds,
+                                    pageToken: nextPageToken
+                                },
+                                function (err, res) {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        resolve(res);
+                                    }
+                                }
+                            );
+                        });
+                        result = result.concat(resp.data.messages);
+                        nextPageToken = resp.data.nextPageToken;
                     }
-                );
-            });
-                result = result.concat(resp.data.messages);
-                nextPageToken = resp.data.nextPageToken;
+                    resolve(result);
+                }
             }
-            resolve(result);
-        }
-    }
-);
-});
+        );
+    });
     let result = messages || [];
     return result;
 }
@@ -175,22 +176,22 @@ async function get_recent_email(gmail, oauth2Client, query = "") {
             promises.push(
                 new Promise((resolve, reject) => {
                     gmail.users.messages.get(
-                {
-                    auth: oauth2Client,
-                    userId: "me",
-                    id: message.id,
-                    format: "full"
-                },
-                function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(res);
-                    }
-                }
-                );
-        })
-        );
+                        {
+                            auth: oauth2Client,
+                            userId: "me",
+                            id: message.id,
+                            format: "full"
+                        },
+                        function (err, res) {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(res);
+                            }
+                        }
+                    );
+                })
+            );
         }
         const results = await Promise.all(promises);
         return results.map(r => r.data);
@@ -228,24 +229,24 @@ async function reply(gmail, oauth2Client, threadId, subject, from, to, message) 
         promises.push(
             new Promise((resolve, reject) => {
                 gmail.users.messages.send(
-            {
-                auth: oauth2Client,
-                userId: "me",
-                resource: {
-                    raw: base64EncodedEmail,
-                    threadId : threadId
-                }
-            },
-            function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(res);
-                }
-            }
-            );
-    })
-    );
+                    {
+                        auth: oauth2Client,
+                        userId: "me",
+                        resource: {
+                            raw: base64EncodedEmail,
+                            threadId: threadId
+                        }
+                    },
+                    function (err, res) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(res);
+                        }
+                    }
+                );
+            })
+        );
         const result = await Promise.all(promises);
         return result;
     } catch (error) {
@@ -270,23 +271,75 @@ async function send(gmail, oauth2Client, subject, from, to, message) {
         promises.push(
             new Promise((resolve, reject) => {
                 gmail.users.messages.send(
+                    {
+                        auth: oauth2Client,
+                        userId: "me",
+                        resource: {
+                            raw: base64EncodedEmail,
+                        }
+                    },
+                    function (err, res) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(res);
+                        }
+                    }
+                );
+            })
+        );
+        const result = await Promise.all(promises);
+        return result;
+    } catch (error) {
+        return 'Error ' + error
+    }
+}
+
+async function sendEmailWithAttachments(gmail, oauth2Client, subject, from, to, message, attachments) {
+    try {
+        let promises = [];
+        let mail = new MailComposer(
             {
-                auth: oauth2Client,
-                userId: "me",
-                resource: {
-                    raw: base64EncodedEmail,
-                }
-            },
-            function (err, res) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(res);
-                }
-            }
+                to: to,
+                text: "I hope this works",
+                html: " <strong> " + message + " </strong>",
+                subject: subject,
+                textEncoding: "base64",
+                attachments: attachments
+            });
+
+        mail.compile().build((error, msg) => {
+            if (error) return console.log('Error compiling email ' + error);
+
+            const encodedMessage = Buffer.from(msg)
+                .toString('base64')
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+
+            const gmail = google.gmail({version: 'v1', oauth2Client});
+
+            promises.push(
+                new Promise((resolve, reject) => {
+                    gmail.users.messages.send(
+                        {
+                            auth: oauth2Client,
+                            userId: "me",
+                            resource: {
+                                raw: encodedMessage,
+                            }
+                        },
+                        function (err, res) {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(res);
+                            }
+                        }
+                    );
+                })
             );
-    })
-    );
+        });
         const result = await Promise.all(promises);
         return result;
     } catch (error) {
@@ -298,5 +351,6 @@ module.exports = {
     authorize,
     get_recent_email,
     reply,
-    send
+    send,
+    sendEmailWithAttachments
 };
