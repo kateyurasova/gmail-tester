@@ -10,6 +10,12 @@ There are two main functionalities this library provides:<br>
 1.  `check_inbox()`: Polls a mailbox for a given amount of time. At the end of the operation, the desired message is returned (if found).
 2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example [below](https://github.com/levz0r/gmail-tester-extended/blob/master/README.md#using-get_messages-to-assert-email-body-using-cypress)).
 3.  `reply_email()`: Can be used to perform various assertions on the email objects.
+4.  `get_messages()`: Returns array of emails
+5.  `reply_email()`: Allows to reply for an email
+6.  `send_email()`: Allows to send an email
+7.  `send_email_with_attachments()`: Allows to send and email with attachment
+8.  `getMessageWithTextInBody()`: Allows to find and get an email with specific text in body
+9.  `checkGoogleEmailWithMessage()`: Allow to find and email with specific snippet
 
 P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inbox-in-cypress-io-a4286cfdb888) on medium, how using [Cypress](https://cypress.io), we are testing our user registration process at Tastewise.
 
@@ -43,6 +49,9 @@ The process should look like this:
 <p align="center">
   <img src="https://i.ibb.co/k94bkzB/run-script.png" alt="Run script">
 </p>
+
+You can find videoguide about how to generate credentials and token file using this [link](https://youtu.be/3S1gjrbi1uw).
+
 
 # How to get credentials.json?
 
